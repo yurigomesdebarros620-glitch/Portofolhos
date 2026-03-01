@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizzaria do Zé - Pedidos via WhatsApp</title>
+    
+    <!-- Importando Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configurando cores personalizadas no Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-red': '#D32F2F',
+                        'brand-dark': '#1F1F1F',
+                        'brand-yellow': '#FFC107',
+                        'brand-green': '#25D366', /* Cor oficial do WhatsApp */
+                        'brand-choco': '#5D4037', /* Cor para seção de doces */
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Importando Google Fonts (Poppins) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Importando ícones (FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #F9FAFB;
+        }
+
+        /* Hero Background Pattern */
+        .hero-bg {
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1579751626657-72bc17010498?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* Card Hover Effects */
+        .pizza-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pizza-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* --- VISUALIZADOR DE PIZZA (VISTA DE CIMA) --- */
+        .pizza-board {
+            width: 320px;
+            height: 320px;
+            background-color: #2D2D2D;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239C92AC' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            margin: 0 auto;
+            border: 8px solid #3E3E3E;
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .pizza-board {
+                width: 380px;
+                height: 380px;
+            }
+            .pizza-container {
+                width: 340px !important;
+                height: 340px !important;
+            }
+        }
+
+        .pizza-container {
+            width: 280px;
+            height: 280px;
+            position: relative;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #f1f1f1;
+            /* IMAGEM DA BASE (MASSA + MOLHO) */
+            background-image: url('https://images.unsplash.com/photo-1593560708920-63984dc77432?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80');
+            background-size: cover;
+            background-position: center;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.6);
+        }
+        
+        .pizza-half {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center; 
+            transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            
+            -webkit-mask-image: radial-gradient(circle at center, black 53%, transparent 70%);
+            mask-image: radial-gradient(circle at center, black 53%, transparent 70%);
+            
+            transform: scale(1.15); 
+        }
+
+        .half-left {
+            clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+            z-index: 10;
+        }
+
+        .half-right {
+            clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+            z-index: 10;
+        }
+
+        .pizza-divider {
+            position: absolute;
+            top: 15%; 
+            bottom: 15%; 
+            left: 50%;
+            width: 1px;
+            background: rgba(255,255,255,0.3);
+            z-index: 20;
+            transform: translateX(-50%);
+        }
+
+        .spin-animation {
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(1) rotate(-5deg); opacity: 0; }
+            to { transform: scale(1.15) rotate(0); opacity: 1; }
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D32F2F;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="pb-32">
+
+    <!-- Cabeçalho -->
+    <nav class="bg-brand-dark/95 backdrop-blur text-white p-4 shadow-xl sticky top-0 z-50 transition-all">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-brand-red p-2.5 rounded-full shadow-lg">
+                    <i class="fas fa-pizza-slice text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">Pizzaria do Zé</h1>
+                    <div class="flex items-center gap-2">
+                        <p class="text-[10px] uppercase tracking-widest text-gray-400">Artesanal & Deliciosa</p>
+                        <!-- Badge de Funcionamento -->
+                        <span id="status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase hidden md:inline-block">
+                            Verificando...
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <!-- Status Mobile -->
+                <div id="status-badge-mobile" class="text-xs font-bold px-3 py-1 rounded-full md:hidden">
+                    ...
+                </div>
+
+                <button onclick="scrollToCart()" class="relative bg-white/10 hover:bg-white/20 p-3 rounded-xl transition duration-300 group ring-1 ring-white/10">
+                    <i class="fas fa-shopping-bag text-2xl text-brand-yellow group-hover:text-white transition"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-brand-red text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-brand-dark shadow-md">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Banner Principal (Hero) -->
+    <header class="hero-bg py-24 md:py-32 px-4 text-center relative overflow-hidden">
+        <div class="relative z-10 max-w-4xl mx-auto">
+            <span class="inline-block py-1.5 px-4 rounded-full bg-brand-yellow text-brand-dark text-xs font-bold mb-6 uppercase tracking-wider shadow-lg">
+                <i class="fas fa-motorcycle mr-2"></i>Entregas Rápidas
+            </span>
+            <h2 class="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight drop-shadow-2xl">
+                O Sabor Que Você <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-yellow to-orange-400">Merece.</span>
+            </h2>
+            <p class="text-gray-200 text-lg font-medium mb-10 max-w-2xl mx-auto drop-shadow-md">
+                Ingredientes selecionados e massa crocante. <br class="hidden md:inline">Faça seu pedido em segundos direto pelo WhatsApp!
+            </p>
+            <div id="horario-aviso" class="mb-8 hidden">
+                <span class="bg-red-600/90 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg border border-red-400">
+                    <i class="fas fa-clock mr-2"></i> Estamos fechados no momento (Abre às 18:00)
+                </span>
+            </div>
+            <button onclick="document.getElementById('tradicionais').scrollIntoView({behavior: 'smooth'})" class="bg-brand-red hover:bg-red-600 text-white font-bold py-4 px-10 rounded-full shadow-xl hover:shadow-red-900/40 transition transform hover:-translate-y-1 text-lg">
+                Ver Cardápio
+            </button>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8 space-y-24 -mt-10 relative z-20">
+
+        <!-- SEÇÃO: Visualizador / Meia a Meia -->
+        <section id="montar-pizza" class="bg-white p-6 md:p-10 rounded-3xl shadow-2xl border border-gray-100">
+            <div class="text-center mb-12">
+                <span class="text-brand-red font-bold uppercase tracking-widest text-xs">Exclusivo</span>
+                <h3 class="text-3xl md:text-4xl font-extrabold text-gray-800 mt-2">
+                    Monte sua <span class="text-brand-red">Meia a Meia</span>
+                </h3>
+                <p class="text-gray-500 mt-3 max-w-md mx-auto">Não consegue decidir? Escolha dois sabores e nós preparamos para você.</p>
+            </div>
+
+            <div class="flex flex-col xl:flex-row items-center justify-center gap-12 xl:gap-24">
+                <div class="relative group">
+                    <div class="pizza-board transition-transform duration-500 hover:scale-[1.02]">
+                        <div class="pizza-container" id="pizza-viewer">
+                            <img id="img-left" src="" class="pizza-half half-left" alt="Metade Esquerda">
+                            <img id="img-right" src="" class="pizza-half half-right" alt="Metade Direita">
+                            <div class="pizza-divider"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="absolute top-1/2 -left-8 -translate-y-1/2 bg-white px-4 py-2 rounded-xl shadow-lg text-xs font-bold text-gray-600 hidden xl:block border border-gray-100">
+                        <i class="fas fa-arrow-right text-brand-red mr-2"></i>Esq.
+                    </div>
+                    <div class="absolute top-1/2 -right-8 -translate-y-1/2 bg-white px-4 py-2 rounded-xl shadow-lg text-xs font-bold text-gray-600 hidden xl:block border border-gray-100">
+                        Dir.<i class="fas fa-arrow-left text-brand-yellow ml-2"></i>
+                    </div>
+                </div>
+
+                <div class="w-full max-w-lg space-y-8 bg-gray-50 p-8 rounded-3xl border border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-gray-700 font-bold text-xs uppercase tracking-wide flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-brand-red"></span> Lado Esquerdo
+                            </label>
+                            <div class="relative">
+                                <select id="select-left" onchange="atualizarVisualizador()" class="w-full p-4 pl-4 text-sm bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/50 focus:border-brand-red outline-none shadow-sm cursor-pointer appearance-none transition-all hover:border-brand-red/30">
+                                    <!-- Opções via JS -->
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-gray-700 font-bold text-xs uppercase tracking-wide flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-brand-yellow"></span> Lado Direito
+                            </label>
+                            <div class="relative">
+                                <select id="select-right" onchange="atualizarVisualizador()" class="w-full p-4 pl-4 text-sm bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/50 focus:border-brand-red outline-none shadow-sm cursor-pointer appearance-none transition-all hover:border-brand-red/30">
+                                    <!-- Opções via JS -->
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Preço Final</p>
+                            <p class="text-xs text-gray-500">Média dos dois sabores</p>
+                        </div>
+                        <p id="custom-price" class="text-4xl font-extrabold text-brand-dark tracking-tighter">R$ 0,00</p>
+                    </div>
+
+                    <button onclick="adicionarMeiaMeia()" class="w-full bg-brand-dark hover:bg-black text-white font-bold py-5 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 flex items-center justify-center gap-3 group text-lg">
+                        <span>Adicionar ao Pedido</span>
+                        <div class="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center group-hover:bg-brand-red transition-colors">
+                            <i class="fas fa-plus text-sm"></i>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO: Sabores Tradicionais -->
+        <section id="tradicionais" class="scroll-mt-28">
+            <div class="flex items-end gap-4 mb-10 border-b border-gray-200 pb-4">
+                <h3 class="text-3xl font-extrabold text-gray-800">
+                    <i class="fas fa-fire text-brand-red mr-3"></i>Sabores Tradicionais
+                </h3>
+            </div>
+            
+            <div id="grid-pizzas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+                <!-- Pizzas via JS -->
+            </div>
+        </section>
+
+        <!-- SEÇÃO: Doces -->
+        <section id="doces" class="scroll-mt-28">
+            <div class="flex items-end gap-4 mb-10 border-b border-gray-200 pb-4">
+                <h3 class="text-3xl font-extrabold text-gray-800">
+                    <i class="fas fa-cookie-bite text-brand-choco mr-3"></i>Pizzas Doces
+                </h3>
+            </div>
+            
+            <div id="grid-doces" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+                <!-- Doces via JS -->
+            </div>
+        </section>
+
+        <!-- SEÇÃO: Bebidas -->
+        <section id="bebidas" class="scroll-mt-28">
+            <div class="flex items-end gap-4 mb-10 border-b border-gray-200 pb-4">
+                <h3 class="text-3xl font-extrabold text-gray-800">
+                    <i class="fas fa-glass-cheers text-blue-500 mr-3"></i>Bebidas
+                </h3>
+            </div>
+            
+            <div id="grid-bebidas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+                <!-- Bebidas via JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Área do Carrinho (Drawer) -->
+    <div id="cart-wrapper" class="fixed bottom-0 left-0 right-0 pointer-events-none z-50 flex justify-center px-0 md:px-4">
+        <section id="cart-section" class="bg-white w-full max-w-4xl md:rounded-t-3xl shadow-[0_-10px_60px_rgba(0,0,0,0.2)] pointer-events-auto transform translate-y-[88%] transition-transform duration-500 cubic-bezier(0.32, 0.72, 0, 1) border border-gray-200">
+            
+            <!-- Handle do Carrinho -->
+            <div class="bg-white hover:bg-gray-50 transition-colors p-4 md:rounded-t-3xl cursor-pointer flex justify-between items-center border-b border-gray-100 relative" onclick="toggleCart()">
+                <div class="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-gray-200 rounded-full md:hidden"></div>
+
+                <div class="flex items-center gap-4 mt-2 md:mt-0">
+                    <div class="bg-brand-red text-white p-3 rounded-xl shadow-md relative">
+                        <i class="fas fa-shopping-basket text-lg"></i>
+                        <span id="badge-total" class="absolute -top-2 -right-2 bg-brand-yellow text-brand-dark text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-white hidden">0</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-lg leading-none">Seu Pedido</h3>
+                        <p class="text-sm text-gray-400 mt-1" id="cart-mini-summary">O carrinho está vazio</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-6 mt-2 md:mt-0">
+                    <div class="text-right">
+                        <p class="text-xs text-gray-400 uppercase font-bold">Total</p>
+                        <span id="cart-total-mini" class="font-extrabold text-2xl text-gray-800">R$ 0,00</span>
+                    </div>
+                    <div class="bg-gray-100 p-2 rounded-full w-10 h-10 flex items-center justify-center">
+                        <i class="fas fa-chevron-up text-gray-600 transition-transform duration-500" id="cart-chevron"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conteúdo do Carrinho -->
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[75vh] overflow-y-auto custom-scrollbar bg-white">
+                
+                <!-- Lista de Itens -->
+                <div class="space-y-4">
+                    <h4 class="font-bold text-gray-700 text-sm uppercase tracking-wider border-b pb-2">Itens Selecionados</h4>
+                    <div id="cart-items" class="space-y-4 min-h-[150px]">
+                        <!-- Itens inseridos via JS -->
+                    </div>
+                </div>
+
+                <!-- Formulário de Checkout -->
+                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 h-fit">
+                    <h4 class="font-bold text-gray-700 text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fas fa-map-marker-alt text-brand-red"></i> Dados para Entrega
+                    </h4>
+                    
+                    <div class="space-y-4">
+                        <!-- Nome -->
+                        <div class="group">
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Seu Nome</label>
+                            <input type="text" id="client-name" placeholder="Como podemos te chamar?" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green outline-none bg-white transition-all text-sm">
+                        </div>
+                        
+                        <!-- Endereço -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Endereço Completo</label>
+                            <textarea id="client-address" placeholder="Rua, Número, Bairro e Complemento..." class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green outline-none bg-white resize-none transition-all text-sm" rows="2"></textarea>
+                        </div>
+
+                        <!-- Observações (NOVO) -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Observações do Pedido</label>
+                            <textarea id="client-obs" placeholder="Ex: Sem cebola, tirar azeitona, bem assada..." class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green outline-none bg-white resize-none transition-all text-sm" rows="2"></textarea>
+                        </div>
+
+                        <!-- Forma de Pagamento (NOVO) -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Forma de Pagamento</label>
+                            <div class="relative">
+                                <select id="payment-method" class="w-full p-3 pl-4 text-sm bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green outline-none shadow-sm cursor-pointer appearance-none transition-all">
+                                    <option value="" disabled selected>Selecione como vai pagar...</option>
+                                    <option value="PIX">💠 PIX (Chave enviada no Zap)</option>
+                                    <option value="Cartão de Crédito">💳 Cartão de Crédito (Maquininha)</option>
+                                    <option value="Cartão de Débito">💳 Cartão de Débito (Maquininha)</option>
+                                    <option value="Dinheiro">💵 Dinheiro (Precisa de troco?)</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 border-t border-gray-200 mt-4">
+                            <div class="flex justify-between items-center mb-5">
+                                <span class="text-gray-600 font-bold">Total a Pagar</span>
+                                <span id="cart-total" class="text-3xl font-extrabold text-brand-dark">R$ 0,00</span>
+                            </div>
+                            
+                            <!-- BOTÃO CTA PRINCIPAL -->
+                            <button onclick="checkout()" id="btn-checkout" class="w-full bg-brand-green hover:bg-[#1da851] text-white font-bold py-5 px-6 rounded-2xl shadow-lg shadow-green-500/20 transition-all transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-3 group opacity-50 cursor-not-allowed">
+                                <i class="fab fa-whatsapp text-3xl animate-bounce"></i>
+                                <div class="text-left leading-tight">
+                                    <span class="block text-xs font-medium opacity-90 uppercase">Finalizar Pedido</span>
+                                    <span class="block text-xl">Peça agora pelo WhatsApp</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Lógica JavaScript -->
+    <script>
+        const TELEFONE_PIZZARIA = "5511999999999"; 
+
+        // --- Configuração de Horário (Exemplo: 18h às 23h) ---
+        // Para testar, altere esses valores
+        const HORA_ABERTURA = 18; 
+        const HORA_FECHAMENTO = 23; 
+        // -----------------------------------------------------
+
+        const cardapio = [
+            { id: 1, nome: "Calabresa", descricao: "Molho de tomate especial, mussarela derretida, calabresa fatiada e cebola fresca.", preco: 35.00, imagem: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" },
+            { id: 2, nome: "Mussarela", descricao: "Molho de tomate, dupla camada de mussarela e orégano chileno.", preco: 32.00, imagem: "https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" },
+            { id: 3, nome: "Portuguesa", descricao: "Presunto magro, ovos, cebola, ervilha fresca e cobertura generosa de mussarela.", preco: 38.00, imagem: "https://images.unsplash.com/photo-1595854341625-f71373415558?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" },
+            { id: 4, nome: "Frango c/ Catupiry", descricao: "Peito de frango desfiado e temperado, coberto com o legítimo Catupiry.", preco: 40.00, imagem: "https://images.unsplash.com/photo-1555072956-7758afb20e8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" },
+            { id: 5, nome: "Pepperoni", descricao: "Mussarela de primeira qualidade e fatias de pepperoni crocante.", preco: 45.00, imagem: "https://images.unsplash.com/photo-1628840042765-356cda07504e?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" },
+            { id: 6, nome: "Vegetariana", descricao: "Mix de pimentões, cebola roxa, cogumelos paris, tomate e azeitonas pretas.", preco: 36.00, imagem: "https://images.unsplash.com/photo-1576458088443-04a19bb13da6?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" },
+            { id: 7, nome: "Bacon", descricao: "Mussarela, cubos de bacon crocante e milho doce.", preco: 39.00, imagem: "https://images.unsplash.com/photo-1542834369-f10ebf06d3e0?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" },
+            { id: 8, nome: "Marguerita", descricao: "Mussarela de búfala, rodelas de tomate e folhas de manjericão fresco.", preco: 37.00, imagem: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" },
+            { id: 9, nome: "Quatro Queijos", descricao: "Mussarela, provolone, parmesão e gorgonzola derretidos.", preco: 42.00, imagem: "https://images.unsplash.com/photo-1573821663912-569905455b1c?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" },
+            { id: 10, nome: "Baiana", descricao: "Calabresa moída, pimenta calabresa, cebola e um toque de pimentão.", preco: 38.00, imagem: "https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" },
+            { id: 11, nome: "Napolitana", descricao: "Mussarela, rodelas de tomate, parmesão e alho frito.", preco: 36.00, imagem: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" }
+        ];
+
+        const doces = [
+            { id: 201, nome: "Chocolate com Morango", descricao: "Chocolate ao leite derretido coberto com morangos frescos.", preco: 45.00, imagem: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" },
+            { id: 203, nome: "Romeu e Julieta", descricao: "Mussarela suave com pedaços de goiabada derretida.", preco: 40.00, imagem: "https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" }
+        ];
+        
+        const bebidas = [
+            { id: 100, nome: "Coca-Cola 2L", preco: 12.00, imagem: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500", descricao: "Gelada e refrescante." },
+            { id: 101, nome: "Guaraná 2L", preco: 10.00, imagem: "https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=500", descricao: "O original do Brasil." },
+            { id: 102, nome: "Suco de Laranja", preco: 15.00, imagem: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=500", descricao: "Natural da fruta, 1L." },
+            { id: 103, nome: "Cerveja Long Neck", preco: 8.00, imagem: "https://images.unsplash.com/photo-1567696911980-2eed69a46042?w=500", descricao: "Heineken ou Stella (unidade)." }
+        ];
+
+        let carrinho = [];
+
+        function init() {
+            renderizarMenu();
+            preencherSelectsVisualizador();
+            atualizarVisualizador();
+            verificarHorario();
+            setInterval(verificarHorario, 60000); // Verifica a cada minuto
+        }
+
+        // --- Lógica de Horário ---
+        function verificarHorario() {
+            const data = new Date();
+            const horaAtual = data.getHours();
+            
+            // Lógica simples: Se estiver entre a hora de abertura e fechamento
+            // NOTA: Para testes reais de 24h, você pode ajustar as constantes lá em cima.
+            const estaAberto = horaAtual >= HORA_ABERTURA && horaAtual < HORA_FECHAMENTO;
+
+            const badgeDesktop = document.getElementById('status-badge');
+            const badgeMobile = document.getElementById('status-badge-mobile');
+            const avisoHero = document.getElementById('horario-aviso');
+            const btnCheckout = document.getElementById('btn-checkout');
+
+            if (estaAberto) {
+                // Estilos para Aberto
+                const classesAberto = "bg-green-100 text-green-800 border border-green-200";
+                
+                badgeDesktop.className = `px-2 py-0.5 rounded text-[10px] font-bold uppercase hidden md:inline-block ${classesAberto}`;
+                badgeDesktop.innerHTML = `<i class="fas fa-clock mr-1"></i> Aberto Agora`;
+
+                badgeMobile.className = `text-xs font-bold px-3 py-1 rounded-full md:hidden bg-green-500 text-white shadow-lg`;
+                badgeMobile.innerHTML = `Aberto`;
+
+                avisoHero.classList.add('hidden');
+                
+                // Reabilita o botão se o carrinho tiver itens
+                if (carrinho.length > 0) {
+                    btnCheckout.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            } else {
+                // Estilos para Fechado
+                const classesFechado = "bg-red-100 text-red-800 border border-red-200";
+                
+                badgeDesktop.className = `px-2 py-0.5 rounded text-[10px] font-bold uppercase hidden md:inline-block ${classesFechado}`;
+                badgeDesktop.innerHTML = `<i class="fas fa-lock mr-1"></i> Fechado`;
+
+                badgeMobile.className = `text-xs font-bold px-3 py-1 rounded-full md:hidden bg-red-500 text-white shadow-lg`;
+                badgeMobile.innerHTML = `Fechado`;
+
+                avisoHero.classList.remove('hidden');
+            }
+            
+            // Salva estado global para bloquear checkout se necessário
+            window.lojaAberta = estaAberto;
+        }
+
+        function criarCardHTML(item, tipo) {
+            let btnClass = "bg-brand-red hover:bg-red-700 shadow-red-200 group-hover:bg-brand-dark";
+            if (tipo === 'doces') {
+                btnClass = "bg-brand-choco hover:bg-amber-900 shadow-amber-200 group-hover:bg-brand-dark";
+            } else if (tipo === 'bebidas') {
+                btnClass = "bg-blue-600 hover:bg-blue-700 shadow-blue-200 group-hover:bg-brand-dark";
+            }
+
+            return `
+                <div class="bg-white rounded-3xl shadow-sm hover:shadow-2xl border border-gray-100 pizza-card flex flex-col overflow-hidden group h-full">
+                    <div class="h-56 overflow-hidden relative">
+                        <img src="${item.imagem}" alt="${item.nome}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="text-xl font-bold text-gray-800 leading-tight">${item.nome}</h4>
+                            </div>
+                            <p class="text-sm text-gray-500 mb-6 leading-relaxed line-clamp-2">${item.descricao || ''}</p>
+                        </div>
+                        <div class="flex justify-between items-end mt-auto pt-4 border-t border-gray-50">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">A partir de</span>
+                                <span class="text-2xl font-extrabold text-brand-dark">R$ ${item.preco.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                            <button onclick="adicionarAoCarrinhoSimples(${item.id}, '${tipo}')" class="${btnClass} text-white w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center transition-all transform hover:scale-110 hover:rotate-3 active:scale-95">
+                                <i class="fas fa-plus text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderizarMenu() {
+            const gridPizzas = document.getElementById('grid-pizzas');
+            const gridDoces = document.getElementById('grid-doces');
+            const gridBebidas = document.getElementById('grid-bebidas');
+
+            cardapio.forEach(item => {
+                const card = document.createElement('div');
+                card.innerHTML = criarCardHTML(item, 'pizzas');
+                gridPizzas.appendChild(card.firstElementChild);
+            });
+
+            doces.forEach(item => {
+                const card = document.createElement('div');
+                card.innerHTML = criarCardHTML(item, 'doces');
+                gridDoces.appendChild(card.firstElementChild);
+            });
+
+            bebidas.forEach(item => {
+                const card = document.createElement('div');
+                card.innerHTML = criarCardHTML(item, 'bebidas');
+                gridBebidas.appendChild(card.firstElementChild);
+            });
+        }
+
+        function preencherSelectsVisualizador() {
+            const selectLeft = document.getElementById('select-left');
+            const selectRight = document.getElementById('select-right');
+            
+            cardapio.forEach((pizza, index) => {
+                const option = `<option value="${index}">${pizza.nome} - R$ ${pizza.preco.toFixed(2)}</option>`;
+                selectLeft.innerHTML += option;
+                selectRight.innerHTML += option;
+            });
+            
+            if(cardapio.length > 1) selectRight.selectedIndex = 1;
+        }
+
+        function atualizarVisualizador() {
+            const idxLeft = document.getElementById('select-left').value;
+            const idxRight = document.getElementById('select-right').value;
+            const pizzaLeft = cardapio[idxLeft];
+            const pizzaRight = cardapio[idxRight];
+            const imgLeft = document.getElementById('img-left');
+            const imgRight = document.getElementById('img-right');
+            const viewer = document.getElementById('pizza-viewer');
+
+            const imgs = viewer.querySelectorAll('.pizza-half');
+            imgs.forEach(img => {
+                img.classList.remove('spin-animation');
+                void img.offsetWidth; 
+                img.classList.add('spin-animation');
+            });
+
+            imgLeft.src = pizzaLeft.imagem;
+            imgRight.src = pizzaRight.imagem;
+
+            const precoMedio = (pizzaLeft.preco + pizzaRight.preco) / 2;
+            document.getElementById('custom-price').innerText = `R$ ${precoMedio.toFixed(2).replace('.', ',')}`;
+        }
+
+        function adicionarAoCarrinhoSimples(id, listaOrigem) {
+            let lista;
+            let tipoItem;
+
+            if (listaOrigem === 'pizzas') {
+                lista = cardapio;
+                tipoItem = 'Inteira';
+            } else if (listaOrigem === 'doces') {
+                lista = doces;
+                tipoItem = 'Doce';
+            } else {
+                lista = bebidas;
+                tipoItem = 'Bebida';
+            }
+
+            const item = lista.find(p => p.id === id);
+            
+            if (!item) return; 
+
+            carrinho.push({
+                nome: item.nome,
+                preco: item.preco,
+                tipo: tipoItem,
+                img: item.imagem
+            });
+            atualizarCarrinhoUI();
+            abrirCarrinhoAutomaticamente();
+        }
+
+        function adicionarMeiaMeia() {
+            const idxLeft = document.getElementById('select-left').value;
+            const idxRight = document.getElementById('select-right').value;
+            const p1 = cardapio[idxLeft];
+            const p2 = cardapio[idxRight];
+            const preco = (p1.preco + p2.preco) / 2;
+            const nomeComposto = `Meia ${p1.nome} / Meia ${p2.nome}`;
+            
+            carrinho.push({
+                nome: nomeComposto,
+                preco: preco,
+                tipo: 'Pizza Meia a Meia',
+                img: p1.imagem 
+            });
+            
+            atualizarCarrinhoUI();
+            abrirCarrinhoAutomaticamente();
+        }
+
+        function removerDoCarrinho(index) {
+            carrinho.splice(index, 1);
+            atualizarCarrinhoUI();
+        }
+
+        function toggleCart() {
+            const cartSection = document.getElementById('cart-section');
+            const chevron = document.getElementById('cart-chevron');
+            
+            if (cartSection.classList.contains('translate-y-[88%]')) {
+                cartSection.classList.remove('translate-y-[88%]'); 
+                chevron.classList.add('rotate-180');
+            } else {
+                cartSection.classList.add('translate-y-[88%]'); 
+                chevron.classList.remove('rotate-180');
+            }
+        }
+
+        function abrirCarrinhoAutomaticamente() {
+             const cartSection = document.getElementById('cart-section');
+             const chevron = document.getElementById('cart-chevron');
+             cartSection.classList.remove('translate-y-[88%]');
+             chevron.classList.add('rotate-180');
+        }
+
+        function scrollToCart() {
+            abrirCarrinhoAutomaticamente();
+        }
+
+        function atualizarCarrinhoUI() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartTotalElement = document.getElementById('cart-total');
+            const cartTotalMini = document.getElementById('cart-total-mini');
+            const cartCountElement = document.getElementById('cart-count');
+            const badgeTotal = document.getElementById('badge-total');
+            const cartMiniSummary = document.getElementById('cart-mini-summary');
+            const btnCheckout = document.getElementById('btn-checkout');
+
+            const qtd = carrinho.length;
+            cartCountElement.innerText = qtd;
+            badgeTotal.innerText = qtd;
+            
+            // Só libera o botão se tiver itens E a loja estiver aberta
+            if (qtd > 0) {
+                badgeTotal.classList.remove('hidden');
+                if (window.lojaAberta) {
+                    btnCheckout.classList.remove('opacity-50', 'cursor-not-allowed');
+                    btnCheckout.classList.add('animate-pulse-slow');
+                }
+                cartMiniSummary.innerText = `${qtd} item(s) adicionado(s)`;
+                cartMiniSummary.classList.add('text-brand-green');
+            } else {
+                badgeTotal.classList.add('hidden');
+                btnCheckout.classList.add('opacity-50', 'cursor-not-allowed');
+                btnCheckout.classList.remove('animate-pulse-slow');
+                cartMiniSummary.innerText = `O carrinho está vazio`;
+                cartMiniSummary.classList.remove('text-brand-green');
+            }
+
+            if (qtd === 0) {
+                cartItemsContainer.innerHTML = `
+                    <div class="text-center py-8 opacity-50">
+                        <i class="fas fa-shopping-basket text-4xl text-gray-300 mb-2"></i>
+                        <p class="text-sm">Seu carrinho está vazio</p>
+                    </div>`;
+                const zero = "R$ 0,00";
+                cartTotalElement.innerText = zero;
+                cartTotalMini.innerText = zero;
+                return;
+            }
+
+            let total = 0;
+            cartItemsContainer.innerHTML = '';
+
+            carrinho.forEach((item, index) => {
+                total += item.preco;
+                const itemElement = document.createElement('div');
+                itemElement.className = "flex justify-between items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm hover:border-brand-green/30 transition group";
+                itemElement.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-14 h-14 rounded-lg overflow-hidden shrink-0 border border-gray-100">
+                            <img src="${item.img}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-gray-800 text-sm leading-tight line-clamp-1">${item.nome}</span>
+                            <span class="text-[10px] uppercase font-bold text-gray-400 bg-gray-50 w-fit px-1.5 py-0.5 rounded mt-1">${item.tipo}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="font-bold text-gray-700 text-sm">R$ ${item.preco.toFixed(2).replace('.', ',')}</span>
+                        <button onclick="removerDoCarrinho(${index})" class="w-8 h-8 rounded-full bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition flex items-center justify-center">
+                            <i class="fas fa-trash-alt text-xs"></i>
+                        </button>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(itemElement);
+            });
+
+            const totalFormatado = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            cartTotalElement.innerText = totalFormatado;
+            cartTotalMini.innerText = totalFormatado;
+        }
+
+        function checkout() {
+            if (!window.lojaAberta) {
+                alert("Desculpe, a pizzaria está fechada no momento! Verifique nosso horário de funcionamento.");
+                return;
+            }
+            if (carrinho.length === 0) return;
+
+            const nome = document.getElementById('client-name').value.trim();
+            const endereco = document.getElementById('client-address').value.trim();
+            const observacoes = document.getElementById('client-obs').value.trim();
+            const pagamento = document.getElementById('payment-method').value;
+
+            if (!nome) {
+                alert("Por favor, digite seu nome.");
+                document.getElementById('client-name').focus();
+                return;
+            }
+            if (!pagamento) {
+                alert("Por favor, selecione a forma de pagamento.");
+                document.getElementById('payment-method').focus();
+                return;
+            }
+
+            let mensagem = `*OLÁ! QUERO FAZER UM PEDIDO* 🍕\n`;
+            mensagem += `--------------------------------\n`;
+            mensagem += `👤 *Cliente:* ${nome}\n`;
+            if (endereco) mensagem += `📍 *Endereço:* ${endereco}\n`;
+            mensagem += `--------------------------------\n\n`;
+            mensagem += `*MEUS ITENS:*\n`;
+            
+            let total = 0;
+            carrinho.forEach(item => {
+                mensagem += `▪️ 1x ${item.nome}\n   _R$ ${item.preco.toFixed(2).replace('.', ',')}_\n`;
+                total += item.preco;
+            });
+
+            mensagem += `\n--------------------------------\n`;
+            if (observacoes) {
+                mensagem += `📝 *Obs:* ${observacoes}\n`;
+            }
+            mensagem += `💳 *Pagamento:* ${pagamento}\n`;
+            mensagem += `--------------------------------\n`;
+            mensagem += `💰 *TOTAL A PAGAR: R$ ${total.toFixed(2).replace('.', ',')}*\n`;
+            mensagem += `--------------------------------\n`;
+            mensagem += `Aguardo a confirmação!`;
+
+           // A URL 'api.whatsapp.com/send' costuma preservar melhor os emojis que o 'wa.me'
+const url = `https://api.whatsapp.com/send?phone=${TELEFONE_LOJA}&text=${encodeURIComponent(mensagem)}`;
+            window.open(url, '_blank');
+        }
+
+        init();
+    </script>
+</body>
+</html>

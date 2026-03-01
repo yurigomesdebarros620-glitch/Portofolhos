@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yndice Sites e Sistemas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="#" class="logo">Yndice</a>
+        <div class="nav-links">
+            <a href="#sobre" class="nav-link">Sobre</a>
+            <a href="#projetos" class="btn btn-sm">Ver Projetos</a>
+            <button id="theme-toggle" class="theme-btn" aria-label="Alternar Tema">
+                <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <span class="hero-badge">Inovação & Tecnologia</span>
+            <h1>Transformando ideias em <span class="text-gradient">sites e sistemas</span> profissionais</h1>
+            <p>Design moderno, alta performance e soluções focadas em automatizar suas vendas e encantar seus clientes.</p>
+            <div class="hero-buttons">
+                <a href="#projetos" class="btn">Conhecer Projetos</a>
+                <a href="#sobre" class="btn btn-outline">Nossa História</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="projetos" class="projects">
+        <div class="section-title">
+            <h2>Projetos Demonstrativos</h2>
+            <p>Explore as soluções interativas que podemos desenvolver para o seu nicho.</p>
+        </div>
+        
+        <div class="projects-grid">
+            <div class="card">
+                <div class="card-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80" alt="Sistema para Pizzaria">
+                </div>
+                <div class="card-content">
+                    <span class="badge badge-primary">Delivery</span>
+                    <h3>Pizzaria Online</h3>
+                    <p>Cardápio digital intuitivo com cálculo automático de carrinho e envio de pedidos direto para o WhatsApp.</p>
+                    <a href="pizzaria.html" class="link-arrow">Ver demonstração <span>&rarr;</span></a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80" alt="Sistema para Hamburgueria">
+                </div>
+                <div class="card-content">
+                    <span class="badge badge-secondary">Fast Food</span>
+                    <h3>Hamburgueria</h3>
+                    <p>Sistema ágil para seleção de lanches e complementos, gerando tickets organizados para a sua cozinha.</p>
+                    <a href="hamburgueria.html" class="link-arrow">Ver demonstração <span>&rarr;</span></a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=600&q=80" alt="Sistema para Clínica">
+                </div>
+                <div class="card-content">
+                    <span class="badge badge-accent">Saúde</span>
+                    <h3>Agendamento Clínica</h3>
+                    <p>Plataforma de marcação de consultas e exames com filtro inteligente de profissionais, datas e horários.</p>
+                    <a href="clinica.html" class="link-arrow">Ver demonstração <span>&rarr;</span></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="sobre" class="about">
+        <div class="about-content">
+            <h2>Sobre a Yndice</h2>
+            <p>Somos especialistas em criar plataformas digitais que conectam empresas aos seus clientes. Utilizamos as melhores tecnologias do mercado para entregar sites rápidos, responsivos e com design inovador.</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <h2 class="logo">Yndice</h2>
+            <p>Desenvolvimento de Sites e Sistemas</p>
+            <div class="contact-info">
+                <p>📧 contato@yndice.com.br</p>
+                <p>📱 (11) 99999-9999</p>
+            </div>
+        </div>
+        <p class="copyright">&copy; 2026 Yndice. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const moonIcon = document.getElementById('moon-icon');
+        const sunIcon = document.getElementById('sun-icon');
+        const htmlElement = document.documentElement;
+
+        // Verifica preferência salva
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        htmlElement.setAttribute('data-theme', savedTheme);
+        updateIcons(savedTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcons(newTheme);
+        });
+
+        function updateIcons(theme) {
+            if (theme === 'dark') {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            } else {
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
